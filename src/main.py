@@ -11,7 +11,23 @@ from urllib.request import Request, urlopen
 
 from bs4 import BeautifulSoup
 
+keywords = input("keywords: ").split(",")
+assert keywords, "Plaese give me more than a keyword(s)!!!"
+
+print("\n=> KEYWORDS")
+keywords = [keyword.strip().replace(" ", "+") for keyword in keywords]
+for i, keyword in enumerate(keywords):
+    print(f"keyword_{i}: {keyword}")
+
+# convert keywords to url
+print("\n=> URL Generating ... ")
+GOOGLE_SCHOLAR_PRE = "https://scholar.google.com/scholar?hl=ko&as_sdt=0%2C5&q="
+GOOGLE_SCHOLAR_POST = "&btnG="
+GOOGLE_SCHOLAR_KEYS = "%2C+".join(keywords)
+URL = GOOGLE_SCHOLAR_PRE + GOOGLE_SCHOLAR_KEYS + GOOGLE_SCHOLAR_POST
+
 # https forbidden
+print("\n=> Crawling ...")
 context = ssl._create_unverified_context()  # pylint: disable=W0212
 
 URL = "https://scholar.google.com/scholar?hl=ko&as_sdt=0%2C5&q=hih&btnG="
