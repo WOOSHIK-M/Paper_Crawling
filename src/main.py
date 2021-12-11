@@ -47,6 +47,7 @@ html = urlopen(request_url, context=context).read()
 soup = BeautifulSoup(html, "html.parser")
 
 blocks = soup.find_all(class_="gs_ri")
+assert blocks, "Something is wrong ..."
 for block in blocks:
     title_block = block.find(class_="gs_rt")
 
