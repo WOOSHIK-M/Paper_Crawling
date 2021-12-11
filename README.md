@@ -5,7 +5,7 @@
 * get a list of title and url with a given url.
 
 ### TO-DO
-* get a `keywords` to make an url automatically.
+* crawling the authors and abstract
 * crawling paper list of not only the first page.
 * open the urls
 * ...
