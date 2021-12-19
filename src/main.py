@@ -24,37 +24,48 @@ def paper_summary(paper_info: Dict[str, str]) -> None:
     print()
 
 
-keywords = input("keywords: ").split(",")
-assert keywords, "Plaese give me more than a keyword(s)!!!"
+def crawling_a_page(url: str) -> None:
+    """Crawling paper description with a given URL."""
+    context = ssl._create_unverified_context()  # pylint: disable=W0212
+    request_url = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    html = urlopen(request_url, context=context).read()
+    soup = BeautifulSoup(html, "html.parser")
 
-print("\n=> KEYWORDS")
-keywords = [keyword.strip().replace(" ", "+") for keyword in keywords]
-for i, keyword in enumerate(keywords):
-    print(f"keyword_{i}: {keyword}")
+    blocks = soup.find_all(class_="gs_ri")
+    assert blocks, "Something is wrong ..."
+    for block in blocks:
+        title_block = block.find(class_="gs_rt")
 
-# convert keywords to url
-GOOGLE_SCHOLAR_PRE = "https://scholar.google.com/scholar?hl=ko&as_sdt=0%2C5&q="
-GOOGLE_SCHOLAR_POST = "&btnG="
-GOOGLE_SCHOLAR_KEYS = "%2C+".join(keywords)
-URL = GOOGLE_SCHOLAR_PRE + GOOGLE_SCHOLAR_KEYS + GOOGLE_SCHOLAR_POST
-print("URL:", URL)
+        paper_info: Dict[str, str] = {
+            "title": title_block.text,
+            "href": title_block.find("a").attrs["href"],
+            "journal_name": block.find(class_="gs_a").text,
+            "abstract": block.find(class_="gs_rs").text,
+        }
+        paper_summary(paper_info)
 
-# https access
-print("\n=> Crawling ...")
-context = ssl._create_unverified_context()  # pylint: disable=W0212
-request_url = Request(URL, headers={"User-Agent": "Mozilla/5.0"})
-html = urlopen(request_url, context=context).read()
-soup = BeautifulSoup(html, "html.parser")
 
-blocks = soup.find_all(class_="gs_ri")
-assert blocks, "Something is wrong ..."
-for block in blocks:
-    title_block = block.find(class_="gs_rt")
+if __name__ == "__main__":
+    # test_keywords: floorplan, automatic, physical design
+    KEYWORDS = input("keywords: ").split(",")
+    assert KEYWORDS, "Plaese give me more than a keyword(s)!!!"
+    keywords = [keyword.strip().replace(" ", "+") for keyword in KEYWORDS]
 
-    paper_info: Dict[str, str] = {
-        "title": title_block.text,
-        "href": title_block.find("a").attrs["href"],
-        "journal_name": block.find(class_="gs_a").text,
-        "abstract": block.find(class_="gs_rs").text,
-    }
-    paper_summary(paper_info)
+    N_PAGES = int(input("pages: "))
+
+    GOOGLE_SCHOLAR_PRE = "https://scholar.google.com/scholar?"
+    GOOGLE_SCHOLAR_POST = "&hl=ko&as_sdt=0,5"
+    GOOGLE_SCHOLAR_KEYS = "q=" + ",+".join(keywords)
+
+    # make urls
+    urls = [
+        GOOGLE_SCHOLAR_PRE
+        + f"start={page * 10}&"
+        + GOOGLE_SCHOLAR_KEYS
+        + GOOGLE_SCHOLAR_POST
+        for page in range(N_PAGES)
+    ]
+
+    # do crawling
+    for url in urls:
+        crawling_a_page(url)
