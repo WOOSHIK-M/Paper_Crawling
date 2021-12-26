@@ -2,10 +2,7 @@
 
 
 ### AS-IS
-* get a list of title and url with a given url.
+* crawling title and abstract from Google Scholar with given keywords and pages.
 
 ### TO-DO
-* crawling the authors and abstract
-* crawling paper list of not only the first page.
-* open the urls
-* ...
+* make GUI...
